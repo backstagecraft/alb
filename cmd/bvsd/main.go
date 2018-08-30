@@ -6,8 +6,6 @@ import (
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-
-	"github.com/cosmos/cosmos-sdk/examples/basecoin/app"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -16,6 +14,8 @@ import (
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
+
+	"github.com/dcgraph/bvs-cosmos/app"
 )
 
 func main() {
@@ -23,17 +23,17 @@ func main() {
 	ctx := server.NewDefaultContext()
 
 	rootCmd := &cobra.Command{
-		Use:               "basecoind",
-		Short:             "Basecoin Daemon (server)",
+		Use:               "bvsd",
+		Short:             "BVS Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
 
 	server.AddCommands(ctx, cdc, rootCmd, server.DefaultAppInit,
-		server.ConstructAppCreator(newApp, "basecoin"),
-		server.ConstructAppExporter(exportAppStateAndTMValidators, "basecoin"))
+		server.ConstructAppCreator(newApp, "bvs"),
+		server.ConstructAppExporter(exportAppStateAndTMValidators, "bvs"))
 
 	// prepare and add flags
-	rootDir := os.ExpandEnv("$HOME/.basecoind")
+	rootDir := os.ExpandEnv("$HOME/.bvsd")
 	executor := cli.PrepareBaseCmd(rootCmd, "BC", rootDir)
 
 	err := executor.Execute()
@@ -44,10 +44,10 @@ func main() {
 }
 
 func newApp(logger log.Logger, db dbm.DB, storeTracer io.Writer) abci.Application {
-	return app.NewBasecoinApp(logger, db, baseapp.SetPruning(viper.GetString("pruning")))
+	return app.NewBvsApp(logger, db, baseapp.SetPruning(viper.GetString("pruning")))
 }
 
 func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, storeTracer io.Writer) (json.RawMessage, []tmtypes.GenesisValidator, error) {
-	bapp := app.NewBasecoinApp(logger, db)
+	bapp := app.NewBvsApp(logger, db)
 	return bapp.ExportAppStateAndValidators()
 }

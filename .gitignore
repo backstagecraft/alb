@@ -10,3 +10,9 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Go's dep vendor files
+vendor/
+
+# tags file
+tags

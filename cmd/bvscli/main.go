@@ -8,8 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/examples/basecoin/app"
-	"github.com/cosmos/cosmos-sdk/examples/basecoin/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
@@ -17,13 +15,16 @@ import (
 	stakecmd "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/libs/cli"
+
+	"github.com/dcgraph/bvs-cosmos/app"
+	"github.com/dcgraph/bvs-cosmos/types"
 )
 
 // rootCmd is the entry point for this binary
 var (
 	rootCmd = &cobra.Command{
-		Use:   "basecli",
-		Short: "Basecoin light-client",
+		Use:   "bvscli",
+		Short: "BVS light-client",
 	}
 )
 
@@ -75,7 +76,7 @@ func main() {
 	)
 
 	// prepare and add flags
-	executor := cli.PrepareMainCmd(rootCmd, "BC", os.ExpandEnv("$HOME/.basecli"))
+	executor := cli.PrepareMainCmd(rootCmd, "BC", os.ExpandEnv("$HOME/.bvscli"))
 	err := executor.Execute()
 	if err != nil {
 		// Note: Handle with #870

@@ -4,7 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/examples/basecoin/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/wire"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -13,9 +12,11 @@ import (
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
+
+	"github.com/dcgraph/bvs-cosmos/types"
 )
 
-func setGenesis(baseApp *BasecoinApp, accounts ...*types.AppAccount) (types.GenesisState, error) {
+func setGenesis(baseApp *BvsApp, accounts ...*types.BvsAccount) (types.GenesisState, error) {
 	genAccts := make([]*types.GenesisAccount, len(accounts))
 	for i, appAct := range accounts {
 		genAccts[i] = types.NewGenesisAccount(appAct)
@@ -39,7 +40,7 @@ func setGenesis(baseApp *BasecoinApp, accounts ...*types.AppAccount) (types.Gene
 func TestGenesis(t *testing.T) {
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout)).With("module", "sdk/app")
 	db := dbm.NewMemDB()
-	baseApp := NewBasecoinApp(logger, db)
+	baseApp := NewBvsApp(logger, db)
 
 	// construct a pubkey and an address for the test account
 	pubkey := ed25519.GenPrivKey().PubKey()
@@ -54,7 +55,7 @@ func TestGenesis(t *testing.T) {
 	err = baseAcct.SetCoins(coins)
 	require.Nil(t, err)
 
-	// create a new test AppAccount with the given auth.BaseAccount
+	// create a new test BvsAccount with the given auth.BaseAccount
 	appAcct := types.NewAppAccount("foobar", baseAcct)
 	genState, err := setGenesis(baseApp, appAcct)
 	require.Nil(t, err)
@@ -65,7 +66,7 @@ func TestGenesis(t *testing.T) {
 	require.Equal(t, appAcct, res)
 
 	// reload app and ensure the account is still there
-	baseApp = NewBasecoinApp(logger, db)
+	baseApp = NewBvsApp(logger, db)
 
 	stateBytes, err := wire.MarshalJSONIndent(baseApp.cdc, genState)
 	require.Nil(t, err)
