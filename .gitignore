@@ -16,3 +16,6 @@ vendor/
 
 # tags file
 tags
+
+# vim swap files
+.*.sw*
