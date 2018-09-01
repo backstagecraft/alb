@@ -15,7 +15,8 @@ var _ auth.Account = (*BvsAccount)(nil)
 type BvsAccount struct {
 	auth.BaseAccount
 
-	Name string `json:"name"`
+	Name     string   `json:"name"`
+	Vouchers []string // from voucher list
 }
 
 // nolint
