@@ -1,20 +1,24 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+	"github.com/tendermint/tendermint/libs/cli"
+
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/version"
-	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-	ibccmd "github.com/cosmos/cosmos-sdk/x/ibc/client/cli"
-	stakecmd "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
-	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/cli"
+	"github.com/cosmos/cosmos-sdk/wire"
+	authcli "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
+	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+	ibccli "github.com/cosmos/cosmos-sdk/x/ibc/client/cli"
+	stakecli "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
 
 	"github.com/dcgraph/bvs-cosmos/app"
 	"github.com/dcgraph/bvs-cosmos/types"
@@ -48,22 +52,24 @@ func main() {
 	// add query/post commands (custom to binary)
 	rootCmd.AddCommand(
 		client.GetCommands(
-			stakecmd.GetCmdQueryValidator("stake", cdc),
-			stakecmd.GetCmdQueryValidators("stake", cdc),
-			stakecmd.GetCmdQueryDelegation("stake", cdc),
-			stakecmd.GetCmdQueryDelegations("stake", cdc),
-			authcmd.GetAccountCmd("acc", cdc, types.GetAccountDecoder(cdc)),
+			stakecli.GetCmdQueryValidator("stake", cdc),
+			stakecli.GetCmdQueryValidators("stake", cdc),
+			stakecli.GetCmdQueryDelegation("stake", cdc),
+			stakecli.GetCmdQueryDelegations("stake", cdc),
+			authcli.GetAccountCmd("acc", cdc, types.GetAccountDecoder(cdc)),
+			GetCodexCmd("codex", cdc),
 		)...)
+	rootCmd.AddCommand(client.LineBreak)
 
 	rootCmd.AddCommand(
 		client.PostCommands(
-			bankcmd.SendTxCmd(cdc),
-			ibccmd.IBCTransferCmd(cdc),
-			ibccmd.IBCRelayCmd(cdc),
-			stakecmd.GetCmdCreateValidator(cdc),
-			stakecmd.GetCmdEditValidator(cdc),
-			stakecmd.GetCmdDelegate(cdc),
-			stakecmd.GetCmdUnbond("stake", cdc),
+			bankcli.SendTxCmd(cdc),
+			ibccli.IBCTransferCmd(cdc),
+			ibccli.IBCRelayCmd(cdc),
+			stakecli.GetCmdCreateValidator(cdc),
+			stakecli.GetCmdEditValidator(cdc),
+			stakecli.GetCmdDelegate(cdc),
+			stakecli.GetCmdUnbond("stake", cdc),
 		)...)
 
 	// add proxy, version and key info
@@ -81,5 +87,39 @@ func main() {
 	if err != nil {
 		// Note: Handle with #870
 		panic(err)
+	}
+}
+
+func GetCodexCmd(storeName string, cdc *wire.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "codex [id]",
+		Short: "Query codex status",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id := args[0]
+			key := types.Id2StoreKey(id)
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			res, err := cliCtx.QueryStore(key, storeName)
+			if err != nil {
+				return err
+			} else if len(res) == 0 {
+				return fmt.Errorf("No codex found with the id %s", id)
+			}
+
+			codex := &types.Codex{}
+			err = cdc.UnmarshalBinaryBare(res, codex)
+			if err != nil {
+				return err
+			}
+
+			output, err := wire.MarshalJSONIndent(cdc, codex)
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(output))
+
+			return nil
+		},
 	}
 }
