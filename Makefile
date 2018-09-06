@@ -1,6 +1,6 @@
 .PHONY: tags
 
-all: tags test install
+all: test
 
 tags:
 	gotags -R -f tags .
