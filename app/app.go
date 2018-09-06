@@ -56,7 +56,7 @@ func NewBvsApp(logger log.Logger, db dbm.DB, baseAppOptions ...func(*bam.BaseApp
 		cdc:        cdc,
 		BaseApp:    bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...),
 		keyMain:    sdk.NewKVStoreKey("main"),
-		keyAccount: sdk.NewKVStoreKey("acc"),
+		keyAccount: sdk.NewKVStoreKey("account"),
 		keyIBC:     sdk.NewKVStoreKey("ibc"),
 	}
 
@@ -65,7 +65,7 @@ func NewBvsApp(logger log.Logger, db dbm.DB, baseAppOptions ...func(*bam.BaseApp
 		cdc,
 		app.keyAccount, // target store
 		func() auth.Account {
-			return &types.BvsAccount{}
+			return &types.UserAccount{}
 		},
 	)
 	app.coinKeeper = bank.NewKeeper(app.accountMapper)
@@ -106,7 +106,7 @@ func MakeCodec() *wire.Codec {
 	auth.RegisterWire(cdc)
 
 	// register custom type
-	cdc.RegisterConcrete(&types.BvsAccount{}, "bvs/Account", nil)
+	cdc.RegisterConcrete(&types.UserAccount{}, "bvs/UserAccount", nil)
 
 	cdc.Seal()
 
@@ -141,7 +141,7 @@ func (app *BvsApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.
 	}
 
 	for _, gacc := range genesisState.Accounts {
-		acc, err := gacc.ToBvsAccount()
+		acc, err := gacc.ToUserAccount()
 		if err != nil {
 			// TODO: https://github.com/cosmos/cosmos-sdk/issues/468
 			panic(err)
@@ -162,9 +162,12 @@ func (app *BvsApp) ExportAppStateAndValidators() (appState json.RawMessage, vali
 	accounts := []*types.GenesisAccount{}
 
 	appendAccountsFn := func(acc auth.Account) bool {
+		i := app.accountMapper.GetAccount(ctx, acc.GetAddress())
+		ua := i.(*types.UserAccount)
 		account := &types.GenesisAccount{
-			Address: acc.GetAddress(),
-			Coins:   acc.GetCoins(),
+			Id:      ua.Id,
+			Address: ua.Address,
+			Coins:   ua.Coins,
 		}
 
 		accounts = append(accounts, account)

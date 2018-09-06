@@ -6,38 +6,37 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 )
 
-var _ auth.Account = (*BvsAccount)(nil)
+var _ auth.Account = (*UserAccount)(nil)
 
-// BvsAccount is a custom extension for this application. It is an example of
+// UserAccount is a custom extension for this application. It is an example of
 // extending auth.BaseAccount with custom fields. It is compatible with the
 // stock auth.AccountStore, since auth.AccountStore uses the flexible go-amino
 // library.
-type BvsAccount struct {
+type UserAccount struct {
 	auth.BaseAccount
 
-	Name     string   `json:"name"`
-	Vouchers []string // from voucher list
+	Id string `json:"id"`
+	//Vouchers []string // from voucher list
 }
 
-// nolint
-func (acc BvsAccount) GetName() string      { return acc.Name }
-func (acc *BvsAccount) SetName(name string) { acc.Name = name }
+func (acc UserAccount) GetId() string    { return acc.Id }
+func (acc *UserAccount) SetId(id string) { acc.Id = id }
 
-// NewBvsAccount returns a reference to a new BvsAccount given a name and an
+// NewUserAccount returns a reference to a new UserAccount given an id and an
 // auth.BaseAccount.
-func NewBvsAccount(name string, baseAcct auth.BaseAccount) *BvsAccount {
-	return &BvsAccount{BaseAccount: baseAcct, Name: name}
+func NewUserAccount(id string, baseAcct auth.BaseAccount) *UserAccount {
+	return &UserAccount{BaseAccount: baseAcct, Id: id}
 }
 
 // GetAccountDecoder returns the AccountDecoder function for the custom
-// BvsAccount.
+// UserAccount.
 func GetAccountDecoder(cdc *wire.Codec) auth.AccountDecoder {
 	return func(accBytes []byte) (auth.Account, error) {
 		if len(accBytes) == 0 {
 			return nil, sdk.ErrTxDecode("accBytes are empty")
 		}
 
-		acct := new(BvsAccount)
+		acct := new(UserAccount)
 		err := cdc.UnmarshalBinaryBare(accBytes, &acct)
 		if err != nil {
 			panic(err)
@@ -55,25 +54,25 @@ type GenesisState struct {
 // GenesisAccount reflects a genesis account the application expects in it's
 // genesis state.
 type GenesisAccount struct {
-	Name    string         `json:"name"`
+	Id      string         `json:"id"`
 	Address sdk.AccAddress `json:"address"`
 	Coins   sdk.Coins      `json:"coins"`
 }
 
 // NewGenesisAccount returns a reference to a new GenesisAccount given an
-// BvsAccount.
-func NewGenesisAccount(aa *BvsAccount) *GenesisAccount {
+// UserAccount.
+func NewGenesisAccount(aa *UserAccount) *GenesisAccount {
 	return &GenesisAccount{
-		Name:    aa.Name,
+		Id:      aa.Id,
 		Address: aa.Address,
 		Coins:   aa.Coins.Sort(),
 	}
 }
 
-// ToBvsAccount converts a GenesisAccount to an BvsAccount.
-func (ga *GenesisAccount) ToBvsAccount() (acc *BvsAccount, err error) {
-	return &BvsAccount{
-		Name: ga.Name,
+// ToUserAccount converts a GenesisAccount to an UserAccount.
+func (ga *GenesisAccount) ToUserAccount() (acc *UserAccount, err error) {
+	return &UserAccount{
+		Id: ga.Id,
 		BaseAccount: auth.BaseAccount{
 			Address: ga.Address,
 			Coins:   ga.Coins.Sort(),

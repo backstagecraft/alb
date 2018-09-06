@@ -1,6 +1,6 @@
 {
-  "genesis_time": "2018-08-30T06:06:09.982609004Z",
-  "chain_id": "test-chain-HjguD7",
+  "genesis_time": "2018-09-04T08:09:42.630892724Z",
+  "chain_id": "test-chain-V0pMmi",
   "consensus_params": {
     "block_size_params": {
       "max_bytes": "22020096",
@@ -32,15 +32,12 @@
   "app_state": {
     "accounts": [
       {
-        "address": "cosmosaccaddr1duj4udt0lvyv66ntp6djpakhkdt6lxhevyj9h7",
+        "address": "cosmosaccaddr1k9tdfkzfc7rjyz6wr0znvc6kc78a45dyaqy6qh",
+        "id": "0:u:cosmosaccaddr1k9tdfkzfc7rjyz6wr0znvc6kc78a45dyaqy6qh",
         "coins": [
           {
             "denom": "bvs",
-            "amount": "1000000000000000"
-          },
-          {
-            "denom": "bvg",
-            "amount": "1000000000"
+            "amount": "1000000000000"
           }
         ]
       }
