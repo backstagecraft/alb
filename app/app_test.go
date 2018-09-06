@@ -16,7 +16,7 @@ import (
 	"github.com/dcgraph/bvs-cosmos/types"
 )
 
-func setGenesis(bvsApp *BvsApp, accounts ...*types.BvsAccount) (types.GenesisState, error) {
+func setGenesis(bvsApp *BvsApp, accounts ...*types.UserAccount) (types.GenesisState, error) {
 	genAccts := make([]*types.GenesisAccount, len(accounts))
 	for i, appAct := range accounts {
 		genAccts[i] = types.NewGenesisAccount(appAct)
@@ -55,8 +55,8 @@ func TestGenesis(t *testing.T) {
 	err = baseAcct.SetCoins(coins)
 	require.Nil(t, err)
 
-	// create a new test BvsAccount with the given auth.BaseAccount
-	bvsAcct := types.NewBvsAccount("foobar", baseAcct)
+	// create a new test UserAccount with the given auth.BaseAccount
+	bvsAcct := types.NewUserAccount("foobar", baseAcct)
 	genState, err := setGenesis(bvsApp, bvsAcct)
 	require.Nil(t, err)
 
