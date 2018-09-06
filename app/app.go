@@ -58,7 +58,7 @@ func NewBvsApp(logger log.Logger, db dbm.DB, baseAppOptions ...func(*bam.BaseApp
 		cdc:        cdc,
 		BaseApp:    bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...),
 		keyMain:    sdk.NewKVStoreKey("main"),
-		keyAccount: sdk.NewKVStoreKey("account"),
+		keyAccount: sdk.NewKVStoreKey("acc"),
 		keyCodex:   sdk.NewKVStoreKey("codex"),
 		keyIBC:     sdk.NewKVStoreKey("ibc"),
 	}
@@ -202,6 +202,7 @@ func (app *BvsApp) ExportAppStateAndValidators() (appState json.RawMessage, vali
 		v := app.codexMapper.GetCodex(ctx, cod.Id)
 		//v := i.(*types.Codex)
 		codex := &types.GenesisCodex{
+			Id:          v.Id,
 			Owner:       v.Owner,
 			Value:       v.Value,
 			UnitPrice:   v.UnitPrice,

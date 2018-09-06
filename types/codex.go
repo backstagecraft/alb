@@ -53,6 +53,7 @@ type GenesisCodex struct {
 
 func NewGenesisCodex(cod *Codex) *GenesisCodex {
 	return &GenesisCodex{
+		Id:          cod.Id,
 		Owner:       cod.Owner,
 		Value:       cod.Value,
 		UnitPrice:   cod.UnitPrice,
