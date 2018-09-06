@@ -97,7 +97,7 @@ func GetCodexCmd(storeName string, cdc *wire.Codec) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id := args[0]
-			key := types.Id2StoreKey(id)
+			key := types.Id2StoreKey("codex:", id)
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
 			res, err := cliCtx.QueryStore(key, storeName)

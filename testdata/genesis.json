@@ -44,7 +44,7 @@
     ],
     "codices": [
       {
-        "id": "0:c:codex1",
+        "id": "0:c:codex0",
         "owner": "0:u:cosmosaccaddr1k9tdfkzfc7rjyz6wr0znvc6kc78a45dyaqy6qh",
         "value": "one cup of vanilla latte",
         "unit-price": "1000",
@@ -60,6 +60,14 @@
             "amount": "10000"
           }
         ]
+      }
+    ],
+    "vouchers": [
+      {
+        "id": "0:v:codex0:0",
+        "origin": "0:c:codex0",
+        "holder": "0:u:cosmosaccaddr1k9tdfkzfc7rjyz6wr0znvc6kc78a45dyaqy6qh",
+        "expire-on": "1111"
       }
     ]
   }

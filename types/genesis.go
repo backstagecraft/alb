@@ -4,4 +4,5 @@ package types
 type GenesisState struct {
 	Accounts []*GenesisAccount `json:"accounts"`
 	Codices  []*GenesisCodex   `json:"codices"`
+	Vouchers []*Voucher        `json:"vouchers"`
 }
