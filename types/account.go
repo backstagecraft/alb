@@ -16,9 +16,9 @@ type UserAccount struct {
 	auth.BaseAccount
 
 	Id string `json:"id"`
-	//Vouchers []string // from voucher list
 }
 
+// XXX: is it necessary?
 func (acc UserAccount) GetId() string    { return acc.Id }
 func (acc *UserAccount) SetId(id string) { acc.Id = id }
 
@@ -46,10 +46,8 @@ func GetAccountDecoder(cdc *wire.Codec) auth.AccountDecoder {
 	}
 }
 
-// GenesisState reflects the genesis state of the application.
-type GenesisState struct {
-	Accounts []*GenesisAccount `json:"accounts"`
-}
+//////////////////////////////////////////////////////////////////
+// Handling genesis.json
 
 // GenesisAccount reflects a genesis account the application expects in it's
 // genesis state.

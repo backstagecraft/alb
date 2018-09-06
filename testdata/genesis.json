@@ -32,12 +32,32 @@
   "app_state": {
     "accounts": [
       {
-        "address": "cosmosaccaddr1k9tdfkzfc7rjyz6wr0znvc6kc78a45dyaqy6qh",
         "id": "0:u:cosmosaccaddr1k9tdfkzfc7rjyz6wr0znvc6kc78a45dyaqy6qh",
+        "address": "cosmosaccaddr1k9tdfkzfc7rjyz6wr0znvc6kc78a45dyaqy6qh",
         "coins": [
           {
             "denom": "bvs",
             "amount": "1000000000000"
+          }
+        ]
+      }
+    ],
+    "codices": [
+      {
+        "id": "0:c:codex1",
+        "owner": "0:u:cosmosaccaddr1k9tdfkzfc7rjyz6wr0znvc6kc78a45dyaqy6qh",
+        "value": "one cup of vanilla latte",
+        "unit-price": "1000",
+        "sale-type": "sale",
+        "expire-after": "100000",
+        "deposit": "10000",
+        "count-avail": "100",
+        "count-live": "0",
+        "address": "cosmosaccaddr1mme34x53jj6rtexy65l364tdhu8p975mhppln4",
+        "coins": [
+          {
+            "denom": "bvs",
+            "amount": "10000"
           }
         ]
       }

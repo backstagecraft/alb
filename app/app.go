@@ -33,10 +33,12 @@ type BvsApp struct {
 	// keys to access the multistore
 	keyMain    *sdk.KVStoreKey
 	keyAccount *sdk.KVStoreKey
+	keyCodex   *sdk.KVStoreKey
 	keyIBC     *sdk.KVStoreKey
 
 	// manage getting and setting accounts
 	accountMapper       auth.AccountMapper
+	codexMapper         types.CodexMapper
 	feeCollectionKeeper auth.FeeCollectionKeeper
 	coinKeeper          bank.Keeper
 	ibcMapper           ibc.Mapper
@@ -57,6 +59,7 @@ func NewBvsApp(logger log.Logger, db dbm.DB, baseAppOptions ...func(*bam.BaseApp
 		BaseApp:    bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...),
 		keyMain:    sdk.NewKVStoreKey("main"),
 		keyAccount: sdk.NewKVStoreKey("account"),
+		keyCodex:   sdk.NewKVStoreKey("codex"),
 		keyIBC:     sdk.NewKVStoreKey("ibc"),
 	}
 
@@ -66,6 +69,13 @@ func NewBvsApp(logger log.Logger, db dbm.DB, baseAppOptions ...func(*bam.BaseApp
 		app.keyAccount, // target store
 		func() auth.Account {
 			return &types.UserAccount{}
+		},
+	)
+	app.codexMapper = types.NewCodexMapper(
+		cdc,
+		app.keyCodex,
+		func() *types.Codex {
+			return &types.Codex{}
 		},
 	)
 	app.coinKeeper = bank.NewKeeper(app.accountMapper)
@@ -81,9 +91,10 @@ func NewBvsApp(logger log.Logger, db dbm.DB, baseAppOptions ...func(*bam.BaseApp
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 	app.SetAnteHandler(auth.NewAnteHandler(app.accountMapper, app.feeCollectionKeeper))
+	// XXX: Do we need our own AnteHandler?
 
 	// mount the multistore and load the latest state
-	app.MountStoresIAVL(app.keyMain, app.keyAccount, app.keyIBC)
+	app.MountStoresIAVL(app.keyMain, app.keyAccount, app.keyCodex, app.keyIBC)
 	err := app.LoadLatestVersion(app.keyMain)
 	if err != nil {
 		cmn.Exit(err.Error())
@@ -107,6 +118,7 @@ func MakeCodec() *wire.Codec {
 
 	// register custom type
 	cdc.RegisterConcrete(&types.UserAccount{}, "bvs/UserAccount", nil)
+	cdc.RegisterConcrete(&types.Codex{}, "bvs/Codex", nil)
 
 	cdc.Seal()
 
@@ -151,6 +163,15 @@ func (app *BvsApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.
 		app.accountMapper.SetAccount(ctx, acc)
 	}
 
+	for _, gcod := range genesisState.Codices {
+		cod, err := gcod.ToCodex() // cod
+		if err != nil {
+			panic(err)
+		}
+
+		app.codexMapper.SetCodex(ctx, cod)
+	}
+
 	return abci.ResponseInitChain{}
 }
 
@@ -160,14 +181,15 @@ func (app *BvsApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.
 func (app *BvsApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 	ctx := app.NewContext(true, abci.Header{})
 	accounts := []*types.GenesisAccount{}
+	codices := []*types.GenesisCodex{}
 
 	appendAccountsFn := func(acc auth.Account) bool {
 		i := app.accountMapper.GetAccount(ctx, acc.GetAddress())
-		ua := i.(*types.UserAccount)
+		v := i.(*types.UserAccount)
 		account := &types.GenesisAccount{
-			Id:      ua.Id,
-			Address: ua.Address,
-			Coins:   ua.Coins,
+			Id:      v.Id,
+			Address: v.Address,
+			Coins:   v.Coins,
 		}
 
 		accounts = append(accounts, account)
@@ -176,7 +198,29 @@ func (app *BvsApp) ExportAppStateAndValidators() (appState json.RawMessage, vali
 
 	app.accountMapper.IterateAccounts(ctx, appendAccountsFn)
 
-	genState := types.GenesisState{Accounts: accounts}
+	appendCodicesFn := func(cod *types.Codex) bool {
+		v := app.codexMapper.GetCodex(ctx, cod.Id)
+		//v := i.(*types.Codex)
+		codex := &types.GenesisCodex{
+			Owner:       v.Owner,
+			Value:       v.Value,
+			UnitPrice:   v.UnitPrice,
+			SaleType:    v.SaleType,
+			ExpireAfter: v.ExpireAfter,
+			Deposit:     v.Deposit,
+			CountAvail:  v.CountAvail,
+			CountLive:   v.CountLive,
+			Address:     v.Address,
+			Coins:       v.Coins.Sort(),
+		}
+
+		codices = append(codices, codex)
+		return false
+	}
+
+	app.codexMapper.IterateCodices(ctx, appendCodicesFn)
+
+	genState := types.GenesisState{Accounts: accounts, Codices: codices}
 	appState, err = wire.MarshalJSONIndent(app.cdc, genState)
 	if err != nil {
 		return nil, nil, err
