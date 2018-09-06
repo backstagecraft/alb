@@ -48,8 +48,7 @@
   revision = "d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4"
 
 [[projects]]
-  branch = "joon/1704-genesis-params"
-  digest = "1:fdb6c026e3eac458ac73d0d52d382522bbafa9b0df05eca3f5cf1b0a4fefe0ab"
+  digest = "1:85d84bfb7be593d08be763a6701ac56d3208155be0ac3c3ba5eb98262c4fd03a"
   name = "github.com/cosmos/cosmos-sdk"
   packages = [
     "baseapp",
@@ -89,11 +88,6 @@
     "x/ibc/client/rest",
     "x/mock",
     "x/params",
-    "x/params/client/utils",
-    "x/params/consensus",
-    "x/params/gas",
-    "x/params/msgstat",
-    "x/params/space",
     "x/slashing",
     "x/slashing/client/rest",
     "x/stake",
@@ -104,7 +98,8 @@
     "x/stake/types",
   ]
   pruneopts = "UT"
-  revision = "a51af488d705ba58c4fea9385b395b045f546155"
+  revision = "1c38c70468ec721e3a555ba2f3bf5f9da31f0cc9"
+  version = "v0.24.2"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -223,13 +218,12 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
+  digest = "1:ea40c24cdbacd054a6ae9de03e62c5f252479b96c716375aace5c120d68647c8"
   name = "github.com/hashicorp/hcl"
   packages = [
     ".",
     "hcl/ast",
     "hcl/parser",
-    "hcl/printer",
     "hcl/scanner",
     "hcl/strconv",
     "hcl/token",
@@ -548,14 +542,6 @@
   pruneopts = "UT"
   revision = "013b9cef642f875634c614019ab13b17570778ad"
   version = "v0.23.0"
-
-[[projects]]
-  digest = "1:bf6d9a827ea3cad964c2f863302e4f6823170d0b5ed16f72cf1184a7c615067e"
-  name = "github.com/tendermint/tmlibs"
-  packages = ["cli"]
-  pruneopts = "UT"
-  revision = "49596e0a1f48866603813df843c9409fc19805c6"
-  version = "v0.9.0"
 
 [[projects]]
   digest = "1:4dcb0dd65feecb068ce23a234d1a07c7868a1e39f52a6defcae0bb371d03abf6"
