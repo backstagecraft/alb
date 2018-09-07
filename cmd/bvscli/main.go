@@ -58,6 +58,7 @@ func main() {
 			stakecli.GetCmdQueryDelegations("stake", cdc),
 			authcli.GetAccountCmd("acc", cdc, types.GetAccountDecoder(cdc)),
 			GetCodexCmd("codex", cdc),
+			GetVoucherCmd("voucher", cdc),
 		)...)
 	rootCmd.AddCommand(client.LineBreak)
 
@@ -114,6 +115,40 @@ func GetCodexCmd(storeName string, cdc *wire.Codec) *cobra.Command {
 			}
 
 			output, err := wire.MarshalJSONIndent(cdc, codex)
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(output))
+
+			return nil
+		},
+	}
+}
+
+func GetVoucherCmd(storeName string, cdc *wire.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "voucher [id]",
+		Short: "Query voucher status",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id := args[0]
+			key := types.Id2StoreKey("voucher:", id)
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			res, err := cliCtx.QueryStore(key, storeName)
+			if err != nil {
+				return err
+			} else if len(res) == 0 {
+				return fmt.Errorf("No voucher found with the id %s", id)
+			}
+
+			voucher := &types.Voucher{}
+			err = cdc.UnmarshalBinaryBare(res, voucher)
+			if err != nil {
+				return err
+			}
+
+			output, err := wire.MarshalJSONIndent(cdc, voucher)
 			if err != nil {
 				return err
 			}
