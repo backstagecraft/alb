@@ -16,6 +16,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/dcgraph/bvs-cosmos/types"
+	"github.com/dcgraph/bvs-cosmos/x/shop"
 )
 
 const (
@@ -94,7 +95,8 @@ func NewBvsApp(logger log.Logger, db dbm.DB, baseAppOptions ...func(*bam.BaseApp
 	// register message routes
 	app.Router().
 		AddRoute("bank", bank.NewHandler(app.coinKeeper)).
-		AddRoute("ibc", ibc.NewHandler(app.ibcMapper, app.coinKeeper))
+		AddRoute("ibc", ibc.NewHandler(app.ibcMapper, app.coinKeeper)).
+		AddRoute("bvs", shop.NewHandler(app.codexMapper))
 
 	// perform initialization logic
 	app.SetInitChainer(app.initChainer)
@@ -130,6 +132,7 @@ func MakeCodec() *wire.Codec {
 	// register custom type
 	cdc.RegisterConcrete(&types.UserAccount{}, "bvs/UserAccount", nil)
 	cdc.RegisterConcrete(&types.Codex{}, "bvs/Codex", nil)
+	cdc.RegisterConcrete(&shop.MsgBvs{}, "bvs/MsgBvs", nil)
 
 	cdc.Seal()
 
