@@ -173,12 +173,7 @@ func (app *BvsApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.
 		app.accountMapper.SetAccount(ctx, acc)
 	}
 
-	for _, gcod := range genesisState.Codices {
-		cod, err := gcod.ToCodex() // cod
-		if err != nil {
-			panic(err)
-		}
-
+	for _, cod := range genesisState.Codices {
 		app.codexMapper.SetCodex(ctx, cod)
 	}
 
@@ -195,7 +190,7 @@ func (app *BvsApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.
 func (app *BvsApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 	ctx := app.NewContext(true, abci.Header{})
 	accounts := []*types.GenesisAccount{}
-	codices := []*types.GenesisCodex{}
+	codices := []*types.Codex{}
 	vouchers := []*types.Voucher{}
 
 	appendAccountsFn := func(acc auth.Account) bool {
@@ -210,45 +205,18 @@ func (app *BvsApp) ExportAppStateAndValidators() (appState json.RawMessage, vali
 		accounts = append(accounts, account)
 		return false
 	}
-
 	app.accountMapper.IterateAccounts(ctx, appendAccountsFn)
 
 	appendCodicesFn := func(cod *types.Codex) bool {
-		v := app.codexMapper.GetCodex(ctx, cod.Id)
-		//v := i.(*types.Codex) // keep this line for dealer handling
-		codex := &types.GenesisCodex{
-			Id:          v.Id,
-			Owner:       v.Owner,
-			Value:       v.Value,
-			UnitPrice:   v.UnitPrice,
-			SaleType:    v.SaleType,
-			ExpireAfter: v.ExpireAfter,
-			Deposit:     v.Deposit,
-			CountAvail:  v.CountAvail,
-			CountLive:   v.CountLive,
-			Address:     v.Address,
-			Coins:       v.Coins.Sort(),
-		}
-
-		codices = append(codices, codex)
+		codices = append(codices, cod)
 		return false
 	}
-
 	app.codexMapper.IterateCodices(ctx, appendCodicesFn)
 
 	appendVouchersFn := func(vou *types.Voucher) bool {
-		v := app.voucherMapper.GetVoucher(ctx, vou.Id)
-		voucher := &types.Voucher{
-			Id:       v.Id,
-			Origin:   v.Origin,
-			Holder:   v.Holder,
-			ExpireOn: v.ExpireOn,
-		}
-
-		vouchers = append(vouchers, voucher)
+		vouchers = append(vouchers, vou)
 		return false
 	}
-
 	app.voucherMapper.IterateVouchers(ctx, appendVouchersFn)
 
 	genState := types.GenesisState{Accounts: accounts,

@@ -53,7 +53,6 @@
         "deposit": "10000",
         "count-avail": "100",
         "count-live": "0",
-        "address": "cosmosaccaddr1mme34x53jj6rtexy65l364tdhu8p975mhppln4",
         "coins": [
           {
             "denom": "bvs",
